@@ -34,3 +34,15 @@ export const addTweet = async (req: ExtendedRequest, res: Response) => {
 
     res.json({ tweet: newTweet });
 };
+
+export const getTweet = async (req: ExtendedRequest, res: Response) => {
+    if (!req.params.id) {
+        return res.json({ error: "ID do tweet é obrigatório" });
+    }
+    const { id } = req.params;
+
+    const tweet = await findTweet(parseInt(id));
+    if (!tweet) return res.json({ error: "Tweet inexistente" });
+
+    res.json({ tweet });
+};
