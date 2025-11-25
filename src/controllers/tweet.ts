@@ -1,7 +1,11 @@
 import type { Response } from "express";
 import type { ExtendedRequest } from "../types/extended-resquest";
 import { addTweetSchema } from "../schemas/add-tweet";
-import { createTweet, findTweet } from "../services/tweet";
+import {
+    createTweet,
+    findAnswersFromTweet,
+    findTweet,
+} from "../services/tweet";
 import { addHashtag } from "../services/trend";
 
 export const addTweet = async (req: ExtendedRequest, res: Response) => {
@@ -45,4 +49,15 @@ export const getTweet = async (req: ExtendedRequest, res: Response) => {
     if (!tweet) return res.json({ error: "Tweet inexistente" });
 
     res.json({ tweet });
+};
+
+export const getAnswers = async (req: ExtendedRequest, res: Response) => {
+    const { id } = req.params;
+    if (!id) {
+        return res.json({ error: "ID do tweet é obrigatório" });
+    }
+
+    const answers = await findAnswersFromTweet(parseInt(id));
+
+    res.json({ answers });
 };
