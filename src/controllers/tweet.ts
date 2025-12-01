@@ -2,11 +2,15 @@ import type { Response } from "express";
 import type { ExtendedRequest } from "../types/extended-resquest";
 import { addTweetSchema } from "../schemas/add-tweet";
 import {
+    checkIfTweetIsLikedByUser,
     createTweet,
     findAnswersFromTweet,
     findTweet,
+    likeTweet,
+    unlikeTweet,
 } from "../services/tweet";
 import { addHashtag } from "../services/trend";
+import { check } from "zod";
 
 export const addTweet = async (req: ExtendedRequest, res: Response) => {
     const safeData = addTweetSchema.safeParse(req.body);
@@ -60,4 +64,24 @@ export const getAnswers = async (req: ExtendedRequest, res: Response) => {
     const answers = await findAnswersFromTweet(parseInt(id));
 
     res.json({ answers });
+};
+
+export const likeToggle = async (req: ExtendedRequest, res: Response) => {
+    if (!req.params.id) {
+        return res.json({ error: "ID do tweet é obrigatório" });
+    }
+    const { id } = req.params;
+
+    const liked = await checkIfTweetIsLikedByUser(
+        req.userSlug as string,
+        parseInt(id)
+    );
+
+    if (liked) {
+        unlikeTweet(req.userSlug as string, parseInt(id));
+    } else {
+        likeTweet(req.userSlug as string, parseInt(id));
+    }
+
+    res.json({});
 };
