@@ -155,3 +155,44 @@ export const findTweetFeed = async (
     }
     return tweets;
 };
+
+export const findTweetsByBody = async (
+    bodyContains: string,
+    currentPage: number,
+    perPage: number
+) => {
+    const tweets = await prisma.tweet.findMany({
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    avatar: true,
+                    slug: true,
+                },
+            },
+            likes: {
+                select: {
+                    userSlug: true,
+                },
+            },
+        },
+        where: {
+            body: {
+                contains: bodyContains,
+                mode: "insensitive",
+            },
+            answerOf: 0,
+        },
+        orderBy: { createdAt: "desc" },
+        skip: currentPage * perPage,
+        take: perPage,
+    });
+
+    for (let tweet of tweets) {
+        if (tweet.user) {
+            tweet.user.avatar = getPublicUrl(tweet.user.avatar);
+        }
+    }
+
+    return tweets;
+};
