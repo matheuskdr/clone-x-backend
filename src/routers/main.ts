@@ -5,6 +5,8 @@ import * as tweetController from "../controllers/tweet";
 import * as userController from "../controllers/user";
 import * as feedController from "../controllers/feed";
 import * as searchController from "../controllers/search";
+import * as trendController from "../controllers/trend";
+import * as suggestionController from "../controllers/suggestion";
 import { verifyJWT } from "../utils/jwt";
 
 export const mainRouter = Router();
@@ -29,5 +31,5 @@ mainRouter.put("/user", verifyJWT, userController.updateUser);
 
 mainRouter.get("/feed", verifyJWT, feedController.getFeed);
 mainRouter.get("/search", verifyJWT, searchController.searchTweets);
-//mainRouter.get("/trending");
-//mainRouter.get("suggestions");
+mainRouter.get("/trending", verifyJWT, trendController.getTrends);
+mainRouter.get("suggestions", verifyJWT, suggestionController.getSuggestions);
