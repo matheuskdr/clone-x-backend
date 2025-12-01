@@ -8,9 +8,11 @@ import {
     getUserFollowingCount,
     getUserTweetCount,
     unfollow,
+    updateUserInfo,
 } from "../services/user";
 import { userTweetsSchema } from "../schemas/user-tweets";
 import { findTweetsByUser } from "../services/tweet";
+import { updateUserSchema } from "../schemas/update-user";
 
 export const getUser = async (req: ExtendedRequest, res: Response) => {
     if (!req.params.slug) {
@@ -67,4 +69,18 @@ export const followToggle = async (req: ExtendedRequest, res: Response) => {
         await unfollow(me, slug);
         return res.json({ following: false });
     }
+};
+
+export const updateUser = async (req: ExtendedRequest, res: Response) => {
+    const safeData = updateUserSchema.safeParse(req.body);
+    if (!safeData.data) {
+        return res.json({ error: safeData.error.flatten().fieldErrors });
+    }
+
+    const filteredData = Object.fromEntries(
+        Object.entries(safeData.data).filter(([_, v]) => v !== undefined)
+    );
+
+    await updateUserInfo(req.userSlug as string, filteredData);
+    res.json({});
 };
